@@ -13,3 +13,12 @@ edit-url-template = "https://github.com/KaiserY/trpl-zh-cn/edit/main/{path}"
 [output.typst-pdf]
 pdf = true
 section-number = true
+
+[output.epub]
+additional-css = ["ferris.css", "theme/2018-edition.css"]
+curly-quotes = true
+epub-version = 3
+
+[preprocessor.epub-sanitize]
+command = "python scripts/epub_preprocess.py"
+renderers = ["epub"]

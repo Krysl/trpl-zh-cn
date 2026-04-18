@@ -19,13 +19,14 @@ PS:
 
 你可以将本 mdbook 构建成一系列静态 html 页面。这里我们采用 [mdbook](https://rust-lang.github.io/mdBook/index.html) 打包出静态网页。在这之前，你需要安装 [Rust](https://www.rust-lang.org/zh-CN/)。
 
-全局安装 mdbook
+全局安装 mdbook；如果你还想顺手导出 EPUB，也一并安装对应后端：
 
 ``` bash
 cargo install mdbook
+cargo install mdbook-epub
 ```
 
-cd 到项目目录，然后开始构建。构建好的静态文档会出现在 "./book/html" 中
+cd 到项目目录，然后开始构建。构建好的静态文档会出现在 "./book/html" 中，EPUB 会出现在 "./book/epub" 中。
 
 ```bash
 mdbook build
