@@ -1,14 +1,14 @@
-## 将错误信息输出到标准错误而不是标准输出
+<a id="writing-error-messages-to-standard-error-instead-of-standard-output"></a>
 
-> [ch12-06-writing-to-stderr-instead-of-stdout.md](https://github.com/rust-lang/book/blob/main/src/ch12-06-writing-to-stderr-instead-of-stdout.md)
-> <br>
-> commit 02a168ed346042f07010f8b65b4eeed623dd31d1
+## 将错误重定向到标准错误
+
+[ch12-06-writing-to-stderr-instead-of-stdout.md](https://github.com/rust-lang/book/blob/d7c0e477a22bcb37fdb290c6046058565d6738c2/src/ch12-06-writing-to-stderr-instead-of-stdout.md)
 
 目前为止，我们将所有的输出都通过 `println!` 写到了终端。大部分终端都提供了两种输出：**标准输出**（*standard output*，`stdout`）对应一般信息，**标准错误**（*standard error*，`stderr`）则用于错误信息。这种区别允许用户选择将程序正常输出定向到一个文件中并仍将错误信息打印到屏幕上。
 
 但是 `println!` 宏只能够打印到标准输出，所以我们必须使用其他方法来打印到标准错误。
 
-### 检查错误应该写入何处
+### 检查错误写入何处
 
 首先，让我们观察一下目前 `minigrep` 打印的所有内容是如何被写入标准输出的，包括那些应该被写入标准错误的错误信息。可以通过将标准输出流重定向到一个文件同时有意产生一个错误来做到这一点。我们没有重定向标准错误流，所以任何发送到标准错误的内容将会继续显示在屏幕上。
 
@@ -26,7 +26,7 @@ $ cargo run > output.txt
 Problem parsing arguments: not enough arguments
 ```
 
-是的，错误信息被打印到了标准输出中。像这样的错误信息被打印到标准错误中将会有用得多，将使得只有成功运行所产生的输出才会写入文件。我们接下来就修改。
+是的，错误信息被打印到了标准输出中。像这样的错误信息被打印到标准错误中将会有用得多，这将使得只有成功运行所产生的输出才会写入文件。我们接下来就修改。
 
 ### 将错误打印到标准错误
 
@@ -64,10 +64,10 @@ Are you nobody, too?
 How dreary to be somebody!
 ```
 
-这一部分展示了现在我们适当的使用了成功时产生的标准输出和错误时产生的标准错误。
+这一部分展示了现在我们适当地使用了成功时产生的标准输出和错误时产生的标准错误。
 
 ## 总结
 
-在这一章中，我们回顾了目前为止的一些主要章节并涉及了如何在 Rust 环境中进行常规的 I/O 操作。通过使用命令行参数、文件、环境变量和打印错误的 `eprintln!` 宏，现在你已经准备好编写命令行程序了。通过结合前几章的知识，你的代码将会是组织良好的，并能有效的将数据存储到合适的数据结构中、更好的处理错误，并且还是经过良好测试的。
+这一章回顾了迄今为止你学到的一些主要概念，并介绍了如何在 Rust 中执行常见的 I/O 操作。通过使用命令行参数、文件、环境变量和用于打印错误的 `eprintln!` 宏，你现在已经准备好编写命令行程序了。结合前几章的知识，你的代码将会组织良好，能将数据有效地存储在合适的数据结构中，能妥善处理错误，并且经过良好测试。
 
 接下来，让我们探索一些 Rust 中受函数式编程语言影响的功能：闭包和迭代器。

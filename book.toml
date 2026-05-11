@@ -1,18 +1,34 @@
 [book]
 title = "Rust 程序设计语言 简体中文版"
-authors = ["Steve Klabnik 和 Carol Nichols，以及来自 Rust 社区的贡献（Rust 中文社区翻译）"]
-description = "Rust 程序设计语言 简体中文版"
-language = "zh-CN"
+authors = [
+    "Steve Klabnik",
+    "Carol Nichols",
+    "Chris Krycho",
+    "来自 Rust 社区的贡献（Rust 中文社区翻译）",
+]
 
 [output.html]
-additional-css = ["ferris.css", "theme/2018-edition.css"]
+additional-css = [
+    "ferris.css",
+    "theme/2018-edition.css",
+    "theme/semantic-notes.css",
+    "theme/listing.css",
+]
 additional-js = ["ferris.js"]
 git-repository-url = "https://github.com/KaiserY/trpl-zh-cn/tree/main"
-edit-url-template = "https://github.com/KaiserY/trpl-zh-cn/edit/main/{path}"
+
+[output.html.search]
+use-boolean-and = true
 
 [output.typst-pdf]
+custom-template = "custom-template.typ"
 pdf = true
 section-number = true
+rust-book = true
+optional = true
+
+[rust]
+edition = "2024"
 
 [output.epub]
 additional-css = ["ferris.css", "theme/2018-edition.css"]

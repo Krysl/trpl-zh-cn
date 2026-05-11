@@ -1,12 +1,12 @@
-## 方法语法
+## 方法
 
-> [ch05-03-method-syntax.md](https://github.com/rust-lang/book/blob/main/src/ch05-03-method-syntax.md)
-> <br>
-> commit d339373a838fd312a8a9bcc9487e1ffbc9e1582f
+[ch05-03-method-syntax.md](https://github.com/rust-lang/book/blob/8a6130451b0817ead5c2522ce641dcb0f11a8571/src/ch05-03-method-syntax.md)
 
-**方法**（method）与函数类似：它们使用 `fn` 关键字和名称声明，可以拥有参数和返回值，同时包含在某处调用该方法时会执行的代码。不过方法与函数是不同的，因为它们在结构体的上下文中被定义（或者是枚举或 trait 对象的上下文，将分别在[第六章][enums]和[第十七章][trait-objects]讲解），并且它们第一个参数总是 `self`，它代表调用该方法的结构体实例。
+**方法**（method）与函数类似：它们使用 `fn` 关键字和名称声明，可以拥有参数和返回值，同时包含在某处调用该方法时会执行的代码。不过方法与函数是不同的，因为它们在结构体的上下文中被定义（或者是枚举或 trait 对象的上下文，将分别在[第六章][enums]和[第十八章][trait-objects]讲解），并且它们第一个参数总是 `self`，它代表调用该方法的结构体实例。
 
-### 定义方法
+<a id="defining-methods"></a>
+
+### 方法语法
 
 让我们把前面实现的获取一个 `Rectangle` 实例作为参数的 `area` 函数，改写成一个定义于 `Rectangle` 结构体上的 `area` 方法，如示例 5-13 所示：
 
@@ -26,7 +26,7 @@
 
 使用方法替代函数，除了可使用方法语法和不需要在每个函数签名中重复 `self` 的类型之外，其主要好处在于组织性。我们将某个类型实例能做的所有事情都一起放入 `impl` 块中，而不是让将来的用户在我们的库中到处寻找 `Rectangle` 的功能。
 
-请注意，我们可以选择将方法的名称与结构中的一个字段相同。例如，我们可以在 `Rectangle` 上定义一个方法，并命名为 `width`：
+请注意，我们可以选择让方法与结构体中的某个字段同名。例如，我们可以在 `Rectangle` 上定义一个也叫做 `width` 的方法：
 
 <span class="filename">文件名：src/main.rs</span>
 
@@ -36,7 +36,7 @@
 
 在这里，我们选择让 `width` 方法在实例的 `width` 字段的值大于 `0` 时返回 `true`，等于 `0` 时则返回 `false`：我们可以出于任何目的，在同名的方法中使用同名的字段。在 `main` 中，当我们在 `rect1.width` 后面加上括号时。Rust 知道我们指的是方法 `width`。当我们不使用圆括号时，Rust 知道我们指的是字段 `width`。
 
-通常，但并不总是如此，与字段同名的方法将被定义为只返回字段中的值，而不做其他事情。这样的方法被称为 *getters*，Rust 并不像其他一些语言那样为结构字段自动实现它们。Getters 很有用，因为你可以把字段变成私有的，但方法是公共的，这样就可以把对字段的只读访问作为该类型公共 API 的一部分。我们将在[第七章][public]中讨论什么是公有和私有，以及如何将一个字段或方法指定为公有或私有。
+通常情况下，虽然并不总是如此，与字段同名的方法会被定义为只返回该字段中的值，而不做其他事情。这样的方法被称为 *getters*。Rust 不会像其他一些语言那样为结构体字段自动生成 getter。Getter 很有用，因为你可以把字段设为私有，而把方法设为公有，从而将对该字段的只读访问作为该类型公有 API 的一部分。我们会在[第七章][public]讨论什么是公有和私有，以及如何把字段或方法指定为公有或私有。
 
 > ### `->` 运算符到哪去了？
 >
@@ -67,7 +67,7 @@
 > (&p1).distance(&p2);
 > ```
 >
-> 第一行看起来简洁的多。这种自动引用的行为之所以有效，是因为方法有一个明确的接收者———— `self` 的类型。在给出接收者和方法名的前提下，Rust 可以明确地计算出方法是仅仅读取（`&self`），做出修改（`&mut self`）或者是获取所有权（`self`）。事实上，Rust 对方法接收者的隐式借用让所有权在实践中更友好。
+> 第一种写法看起来简洁得多。这种自动引用之所以成立，是因为方法有一个明确的接收者，也就是 `self` 的类型。给定接收者和方法名，Rust 就能明确推断出该方法是只读（`&self`）、可变借用（`&mut self`）还是获取所有权（`self`）。事实上，Rust 对方法接收者的这种隐式借用，是所有权机制在实践中更易用的重要原因之一。
 
 ### 带有更多参数的方法
 
@@ -112,13 +112,13 @@ Can rect1 hold rect3? false
 {{#rustdoc_include ../listings/ch05-using-structs-to-structure-related-data/no-listing-03-associated-functions/src/main.rs:here}}
 ```
 
-关键字 `Self` 在函数的返回类型中代指在 `impl` 关键字后出现的类型，在这里是 `Rectangle`
+关键字 `Self` 在函数的返回类型和函数体中，都是对 `impl` 关键字后所示类型的别名，这里是 `Rectangle`。
 
-使用结构体名和 `::` 语法来调用这个关联函数：比如 `let sq = Rectangle::square(3);`。这个函数位于结构体的命名空间中：`::` 语法用于关联函数和模块创建的命名空间。[第七章][modules]会讲到模块。
+要调用这个关联函数，我们使用结构体名和 `::` 语法；比如 `let sq = Rectangle::square(3);`。这个函数位于结构体的命名空间中：`::` 语法用于关联函数和模块创建的命名空间。[第七章][modules]会讲到模块。
 
 ### 多个 `impl` 块
 
-每个结构体都允许拥有多个 `impl` 块。例如，示例 5-16 中的代码等同于示例 5-15，但每个方法有其自己的 `impl` 块。
+每个结构体都允许拥有多个 `impl` 块。例如，示例 5-15 中的代码等同于示例 5-16 中所示的代码，但后者每个方法有其自己的 `impl` 块。
 
 ```rust
 {{#rustdoc_include ../listings/ch05-using-structs-to-structure-related-data/listing-05-16/src/main.rs:here}}
@@ -135,6 +135,6 @@ Can rect1 hold rect3? false
 但结构体并不是创建自定义类型的唯一方法：让我们转向 Rust 的枚举功能，为你的工具箱再添一个工具。
 
 [enums]: ch06-00-enums.html
-[trait-objects]: ch17-02-trait-objects.html
+[trait-objects]: ch18-02-trait-objects.html
 [public]: ch07-03-paths-for-referring-to-an-item-in-the-module-tree.html#使用-pub-关键字暴露路径
 [modules]: ch07-02-defining-modules-to-control-scope-and-privacy.html
