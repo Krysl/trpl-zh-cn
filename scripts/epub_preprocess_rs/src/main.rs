@@ -5,13 +5,71 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::fs;
 use std::io::{self, Read, Write};
+use std::path::{Path, PathBuf};
 use std::process;
+use std::sync::LazyLock;
 use syntect::html::{css_for_theme_with_class_style, ClassStyle, ClassedHTMLGenerator};
-use syntect::parsing::{SyntaxReference, SyntaxSet};
+use syntect::parsing::{SyntaxDefinition, SyntaxReference, SyntaxSet, SyntaxSetBuilder};
 use syntect::util::LinesWithEndings;
 use typst_library::text::RAW_THEME;
 
 const GENERATED_CSS_PATH: &str = "theme/epub-syntect.css";
+const TOML_SYNTAX_URL: &str =
+    "https://raw.githubusercontent.com/sublimehq/Packages/master/TOML/TOML.sublime-syntax";
+const TOML_SYNTAX_WORKSPACE_PATH: &str = "scripts/epub_preprocess_rs/syntaxes/TOML.sublime-syntax";
+
+fn toml_syntax_path_candidates() -> Vec<PathBuf> {
+    vec![
+        PathBuf::from(TOML_SYNTAX_WORKSPACE_PATH),
+        PathBuf::from(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/syntaxes/TOML.sublime-syntax"
+        )),
+    ]
+}
+
+fn download_toml_syntax_to(path: &Path) -> Result<(), String> {
+    let response = ureq::get(TOML_SYNTAX_URL)
+        .call()
+        .map_err(|e| format!("failed to download TOML syntax: {e}"))?;
+    let text = response
+        .into_string()
+        .map_err(|e| format!("failed to decode TOML syntax response: {e}"))?;
+
+    if let Some(parent) = path.parent() {
+        fs::create_dir_all(parent).map_err(|e| {
+            format!(
+                "failed to create TOML syntax directory {}: {e}",
+                parent.display()
+            )
+        })?;
+    }
+
+    fs::write(path, text)
+        .map_err(|e| format!("failed to write TOML syntax file {}: {e}", path.display()))
+}
+
+fn load_or_download_toml_syntax() -> Result<String, String> {
+    for path in toml_syntax_path_candidates() {
+        if path.exists() {
+            return fs::read_to_string(&path)
+                .map_err(|e| format!("failed to read TOML syntax file {}: {e}", path.display()));
+        }
+    }
+
+    let path = PathBuf::from(TOML_SYNTAX_WORKSPACE_PATH);
+    download_toml_syntax_to(&path)?;
+    fs::read_to_string(&path)
+        .map_err(|e| format!("failed to read TOML syntax file {}: {e}", path.display()))
+}
+
+static TOML_SYNTAX_SET: LazyLock<Option<SyntaxSet>> = LazyLock::new(|| {
+        let syntax_src = load_or_download_toml_syntax().ok()?;
+        let syntax = SyntaxDefinition::load_from_str(&syntax_src, false, None).ok()?;
+        let mut builder = SyntaxSetBuilder::new();
+        builder.add(syntax);
+        Some(builder.build())
+});
 
 fn sanitize_markdown(text: &str, inline_break: &Regex, block_break: &Regex) -> String {
     let text = inline_break.replace_all(text, "$1\n>");
@@ -62,6 +120,12 @@ fn highlight_code(ps: &SyntaxSet, syntax: &SyntaxReference, code: &str) -> Resul
     Ok(generator.finalize())
 }
 
+fn highlight_toml_with_sublime(code: &str) -> Option<String> {
+    let ps = TOML_SYNTAX_SET.as_ref()?;
+    let syntax = ps.find_syntax_by_extension("toml")?;
+    highlight_code(ps, syntax, code).ok()
+}
+
 fn highlight_fenced_blocks(
     text: &str,
     fenced_block: &Regex,
@@ -78,7 +142,18 @@ fn highlight_fenced_blocks(
                 return Cow::Owned(caps.get(0).map(|m| m.as_str()).unwrap_or_default().to_string());
             }
 
-            let Some(syntax) = find_syntax(ps, &language) else {
+            if language == "toml" {
+                let class_suffix = encode_double_quoted_attribute(&original_class);
+                if let Some(highlighted) = highlight_toml_with_sublime(code) {
+                    return Cow::Owned(format!(
+                        "<pre><code class=\"language-{class_suffix}\">{highlighted}</code></pre>"
+                    ));
+                }
+            }
+
+            let syntax = find_syntax(ps, &language);
+
+            let Some(syntax) = syntax else {
                 return Cow::Owned(caps.get(0).map(|m| m.as_str()).unwrap_or_default().to_string());
             };
 
@@ -225,7 +300,7 @@ fn main() {
         ("rs", "rust"),
         ("shell", "bash"),
         ("sh", "bash"),
-        ("console", "bash"),
+        ("console", "console"),
         ("ps1", "powershell"),
         ("pwsh", "powershell"),
         ("yml", "yaml"),

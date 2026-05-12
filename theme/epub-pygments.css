@@ -30,3 +30,17 @@ li code {
     margin: 0 !important;
     padding: 0 0.15em !important;
 }
+
+a {
+    color: black;
+    text-decoration-color: currentColor;
+    text-underline-offset: 0.14em;
+    text-decoration-thickness: 0.06em;
+    text-decoration-skip-ink: none;
+}
+
+/* 终端输出统一为纯黑，避免 token 颜色干扰（与 PDF 观感一致） */
+pre > code.language-console,
+pre > code.language-console *{
+    color: #000 !important;
+}

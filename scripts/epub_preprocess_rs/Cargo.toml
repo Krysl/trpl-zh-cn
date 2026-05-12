@@ -9,3 +9,4 @@ regex = "1"
 serde_json = "1"
 syntect = { version = "5", default-features = true, features = ["default-fancy"] }
 typst-library = "=0.14.2"
+ureq = "2"
