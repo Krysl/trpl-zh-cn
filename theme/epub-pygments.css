@@ -1,0 +1,32 @@
+/* 仅用于 EPUB：由 scripts/epub_preprocess.py 生成的代码 token 颜色 */
+
+/* pre 与 code 的基础样式 */
+/* 使用 Noto Sans Mono，与 PDF（custom-template.typ）保持一致 */
+pre {
+    font-family: 'Noto Sans Mono', 'Courier New', 'Courier', monospace;
+    font-size: 0.95em;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+code {
+    font-family: 'Noto Sans Mono', 'Courier New', 'Courier', monospace;
+    font-size: 0.95em;
+}
+
+/* 降低行内代码高度：仅作用于 p、li 等元素的直接子 code */
+p > code,
+li > code,
+a > code,
+em > code,
+strong > code,
+p code,
+li code {
+    display: inline-block;
+    font-size: 0.8em;
+    line-height: normal;
+    vertical-align: middle;
+    margin: 0 !important;
+    padding: 0 0.15em !important;
+}

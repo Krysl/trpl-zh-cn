@@ -31,10 +31,25 @@ optional = true
 edition = "2024"
 
 [output.epub]
-additional-css = ["ferris.css", "theme/2018-edition.css"]
+custom-template = "custom-template.typ"
+additional-css = [
+    "ferris.css",
+    "theme/2018-edition.css",
+    "theme/semantic-notes.css",
+    "theme/listing.css",
+    "theme/epub-syntect.css",
+    "theme/epub-pygments.css",
+]
 curly-quotes = true
+section-number = true
+rust-book = true
 epub-version = 3
 
 [preprocessor.epub-sanitize]
-command = "python scripts/epub_preprocess.py"
+# 先编译预处理器（仅需在预处理器源码变更后执行）:
+# cargo build --release --manifest-path scripts/epub_preprocess_rs/Cargo.toml
+# 手动生成/更新高亮 CSS（仅需在主题逻辑变更后执行）:
+# scripts/epub_preprocess_rs/target/release/epub_preprocess_rs.exe generate-css
+command = "scripts/epub_preprocess_rs/target/release/epub_preprocess_rs.exe"
 renderers = ["epub"]
+after = ["links"]
